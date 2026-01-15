@@ -26,6 +26,10 @@ export function LaunchProgram(arg1) {
   return window['go']['main']['App']['LaunchProgram'](arg1);
 }
 
+export function OpenConfigFile() {
+  return window['go']['main']['App']['OpenConfigFile']();
+}
+
 export function OpenFolderDialog() {
   return window['go']['main']['App']['OpenFolderDialog']();
 }

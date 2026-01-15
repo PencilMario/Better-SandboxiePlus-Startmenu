@@ -10,7 +10,8 @@ import {
   OpenFolderDialog,
   AddAvailableSandbox,
   RemoveAvailableSandbox,
-  GetFileIcon
+  GetFileIcon,
+  OpenConfigFile
 } from '../wailsjs/go/main/App'
 import Sidebar from './components/Sidebar'
 import MainContent from './components/MainContent'
@@ -191,6 +192,16 @@ function App() {
     }
   }, [])
 
+  const handleOpenConfigFile = useCallback(async () => {
+    try {
+      await OpenConfigFile()
+      showToast('配置文件已打开', 'success')
+    } catch (err) {
+      console.error('Error opening config file:', err)
+      showToast(`打开配置文件失败: ${err.message || err}`, 'error')
+    }
+  }, [])
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
@@ -222,6 +233,7 @@ function App() {
         onChangeSandbox={handleChangeSandbox}
         onAddSandbox={handleAddSandbox}
         onRemoveSandbox={handleRemoveSandbox}
+        onOpenConfigFile={handleOpenConfigFile}
         isCollapsed={sidebarCollapsed}
         onToggle={toggleSidebar}
       />

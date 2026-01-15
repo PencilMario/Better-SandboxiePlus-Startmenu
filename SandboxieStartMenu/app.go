@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -179,4 +181,35 @@ func (a *App) GetAvailableSandboxes() []string {
 // GetFileIcon returns the base64 encoded icon for a file
 func (a *App) GetFileIcon(filePath string) string {
 	return GetFileIconBase64(filePath)
+}
+
+// OpenConfigFile opens the configuration file in the default text editor
+func (a *App) OpenConfigFile() error {
+	// Get the config file path from config manager
+	configPath := a.configManager.GetConfigPath()
+
+	// Check if the config file exists
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		// If config file doesn't exist, create an empty one
+		emptyConfig := &Config{
+			FolderPaths:        []string{},
+			SelectedSandbox:    "DefaultBox",
+			AvailableSandboxes: []string{"DefaultBox", "__ask__"},
+		}
+		data, err := json.MarshalIndent(emptyConfig, "", "  ")
+		if err != nil {
+			return fmt.Errorf("failed to create empty config: %v", err)
+		}
+		if err := os.WriteFile(configPath, data, 0644); err != nil {
+			return fmt.Errorf("failed to write empty config: %v", err)
+		}
+	}
+
+	// Open the config file with the default text editor on Windows
+	cmd := exec.Command("cmd", "/c", "start", "", configPath)
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("failed to open config file: %v", err)
+	}
+
+	return nil
 }

@@ -180,3 +180,8 @@ func (cm *ConfigManager) RemoveAvailableSandbox(sandbox string) error {
 func (cm *ConfigManager) GetAvailableSandboxes() []string {
 	return cm.config.AvailableSandboxes
 }
+
+// GetConfigPath returns the path to the configuration file
+func (cm *ConfigManager) GetConfigPath() string {
+	return cm.configPath
+}

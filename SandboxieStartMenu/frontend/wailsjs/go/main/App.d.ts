@@ -14,6 +14,8 @@ export function IsSandboxieAvailable():Promise<boolean>;
 
 export function LaunchProgram(arg1:string):Promise<main.LaunchResponse>;
 
+export function OpenConfigFile():Promise<void>;
+
 export function OpenFolderDialog():Promise<string>;
 
 export function RemoveAvailableSandbox(arg1:string):Promise<main.AppState>;
