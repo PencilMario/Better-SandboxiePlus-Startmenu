@@ -134,7 +134,7 @@ func pickFolderPowerShell() (string, error) {
 	cmd := exec.Command("powershell", "-Command", `
 		[System.Reflection.Assembly]::LoadWithPartialName('System.windows.forms') | Out-Null
 		$folder = New-Object System.Windows.Forms.FolderBrowserDialog
-		$folder.Description = "Select a folder containing programs"
+		$folder.Description = "选择包含程序的文件夹"
 		$folder.ShowNewFolderButton = $false
 		$result = $folder.ShowDialog()
 		if ($result -eq 'OK') {

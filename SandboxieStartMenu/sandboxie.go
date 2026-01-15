@@ -42,7 +42,7 @@ func (sm *SandboxieManager) GetStartExePath() string {
 // LaunchProgram launches a program in the specified sandbox
 func (sm *SandboxieManager) LaunchProgram(filePath string, sandbox string) (int, error) {
 	if !sm.IsAvailable() {
-		return 0, fmt.Errorf("Sandboxie is not installed")
+		return 0, fmt.Errorf("Sandboxie 未安装")
 	}
 
 	// Validate file exists
@@ -73,7 +73,7 @@ func (sm *SandboxieManager) LaunchProgram(filePath string, sandbox string) (int,
 // TerminateAllPrograms terminates all programs in a sandbox
 func (sm *SandboxieManager) TerminateAllPrograms(sandbox string) error {
 	if !sm.IsAvailable() {
-		return fmt.Errorf("Sandboxie is not installed")
+		return fmt.Errorf("Sandboxie 未安装")
 	}
 
 	cmd := exec.Command(
@@ -88,7 +88,7 @@ func (sm *SandboxieManager) TerminateAllPrograms(sandbox string) error {
 // DeleteSandboxContents deletes the contents of a sandbox
 func (sm *SandboxieManager) DeleteSandboxContents(sandbox string) error {
 	if !sm.IsAvailable() {
-		return fmt.Errorf("Sandboxie is not installed")
+		return fmt.Errorf("Sandboxie 未安装")
 	}
 
 	cmd := exec.Command(
