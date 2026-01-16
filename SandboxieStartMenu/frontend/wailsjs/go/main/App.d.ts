@@ -24,6 +24,8 @@ export function OpenFolder(arg1:string):Promise<main.AppState>;
 
 export function OpenFolderDialog():Promise<string>;
 
+export function OpenSandboxieManager():Promise<void>;
+
 export function RemoveAvailableSandbox(arg1:string):Promise<main.AppState>;
 
 export function RemoveFolder(arg1:string):Promise<main.AppState>;

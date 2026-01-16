@@ -273,3 +273,8 @@ func (a *App) CanGoBack() bool {
 
 	return true
 }
+
+// OpenSandboxieManager opens the Sandboxie Manager (SandMan.exe)
+func (a *App) OpenSandboxieManager() error {
+	return a.sandboxieManager.OpenSandboxieManager()
+}

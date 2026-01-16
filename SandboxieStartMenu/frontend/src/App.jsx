@@ -14,7 +14,8 @@ import {
   OpenConfigFile,
   OpenFolder,
   GoBack,
-  CanGoBack
+  CanGoBack,
+  OpenSandboxieManager
 } from '../wailsjs/go/main/App'
 import Sidebar from './components/Sidebar'
 import MainContent from './components/MainContent'
@@ -226,6 +227,16 @@ function App() {
     }
   }, [])
 
+  const handleOpenSandboxieManager = useCallback(async () => {
+    try {
+      await OpenSandboxieManager()
+      showToast('Sandboxie Manager 已打开', 'success')
+    } catch (err) {
+      console.error('Error opening Sandboxie Manager:', err)
+      showToast(`打开 Sandboxie Manager 失败: ${err.message || err}`, 'error')
+    }
+  }, [])
+
   const handleOpenFolder = useCallback(async (folderPath) => {
     try {
       const newState = await OpenFolder(folderPath)
@@ -278,6 +289,7 @@ function App() {
         onAddSandbox={handleAddSandbox}
         onRemoveSandbox={handleRemoveSandbox}
         onOpenConfigFile={handleOpenConfigFile}
+        onOpenSandboxieManager={handleOpenSandboxieManager}
         isCollapsed={sidebarCollapsed}
         onToggle={toggleSidebar}
       />

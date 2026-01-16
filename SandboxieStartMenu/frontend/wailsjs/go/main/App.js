@@ -46,6 +46,10 @@ export function OpenFolderDialog() {
   return window['go']['main']['App']['OpenFolderDialog']();
 }
 
+export function OpenSandboxieManager() {
+  return window['go']['main']['App']['OpenSandboxieManager']();
+}
+
 export function RemoveAvailableSandbox(arg1) {
   return window['go']['main']['App']['RemoveAvailableSandbox'](arg1);
 }

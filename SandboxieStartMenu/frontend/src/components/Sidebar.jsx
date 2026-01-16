@@ -12,6 +12,7 @@ function Sidebar({
   onAddSandbox,
   onRemoveSandbox,
   onOpenConfigFile,
+  onOpenSandboxieManager,
   isCollapsed = false,
   onToggle,
 }) {
@@ -52,6 +53,13 @@ function Sidebar({
                 title="添加文件夹"
               >
                 <span className="text-xl">📁</span>
+              </button>
+              <button
+                onClick={onOpenSandboxieManager}
+                className="p-2 text-gray-500 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
+                title="打开 Sandboxie Manager"
+              >
+                <span className="text-xl">🔒</span>
               </button>
               <button
                 onClick={onOpenConfigFile}
@@ -113,6 +121,13 @@ function Sidebar({
 
         {/* Configuration Button */}
         <div className={`mt-8 ${isCollapsed ? 'hidden' : ''}`}>
+          <button
+            onClick={onOpenSandboxieManager}
+            className="w-full px-4 py-2 mb-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+          >
+            <span>🔒</span>
+            打开 Sandboxie Manager
+          </button>
           <button
             onClick={onOpenConfigFile}
             className="w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"

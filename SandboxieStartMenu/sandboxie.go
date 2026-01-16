@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 // SandboxieManager handles Sandboxie operations
@@ -98,4 +99,35 @@ func (sm *SandboxieManager) DeleteSandboxContents(sandbox string) error {
 	)
 
 	return cmd.Run()
+}
+
+// OpenSandboxieManager opens the Sandboxie Manager (SandMan.exe)
+func (sm *SandboxieManager) OpenSandboxieManager() error {
+	if !sm.IsAvailable() {
+		return fmt.Errorf("Sandboxie 未安装")
+	}
+
+	// Try to find SandMan.exe in the same directory as Start.exe
+	startDir := filepath.Dir(sm.startExePath)
+	sandManPath := filepath.Join(startDir, "SandMan.exe")
+
+	// Check if SandMan.exe exists
+	if _, err := os.Stat(sandManPath); err != nil {
+		// Try alternative path for Sandboxie-Plus
+		sandManPath = filepath.Join(startDir, "..", "SandMan.exe")
+		sandManPath, _ = filepath.Abs(sandManPath)
+
+		if _, err := os.Stat(sandManPath); err != nil {
+			return fmt.Errorf("Sandboxie Manager (SandMan.exe) not found")
+		}
+	}
+
+	cmd := exec.Command(sandManPath)
+
+	// Start the process
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("failed to start Sandboxie Manager: %v", err)
+	}
+
+	return nil
 }
