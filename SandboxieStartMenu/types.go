@@ -1,11 +1,12 @@
 package main
 
-// FileInfo represents a file in the folder
+// FileInfo represents a file or folder in the directory
 type FileInfo struct {
-	Name string `json:"name"`
-	Path string `json:"path"`
-	Type string `json:"type"` // "exe", "bat", "cmd", "lnk"
-	Icon string `json:"icon,omitempty"` // Base64 encoded icon or empty
+	Name     string `json:"name"`
+	Path     string `json:"path"`
+	Type     string `json:"type"` // "exe", "bat", "cmd", "lnk", "folder"
+	Icon     string `json:"icon,omitempty"` // Base64 encoded icon or empty
+	IsDir    bool   `json:"isDir"` // true for folders, false for files
 }
 
 // AppState represents the current application state

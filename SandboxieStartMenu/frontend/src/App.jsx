@@ -11,7 +11,10 @@ import {
   AddAvailableSandbox,
   RemoveAvailableSandbox,
   GetFileIcon,
-  OpenConfigFile
+  OpenConfigFile,
+  OpenFolder,
+  GoBack,
+  CanGoBack
 } from '../wailsjs/go/main/App'
 import Sidebar from './components/Sidebar'
 import MainContent from './components/MainContent'
@@ -23,6 +26,7 @@ function App() {
   const [toast, setToast] = useState(null)
   const [isDark, setIsDark] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [canGoBack, setCanGoBack] = useState(false)
 
   // Initialize app and detect system theme
   useEffect(() => {
@@ -74,6 +78,26 @@ function App() {
       document.documentElement.classList.remove('dark')
     }
   }, [isDark])
+
+  // Update canGoBack when appState changes
+  useEffect(() => {
+    const updateCanGoBack = async () => {
+      if (!appState || !appState.currentFolder) {
+        setCanGoBack(false)
+        return
+      }
+
+      try {
+        const canGoBackResult = await CanGoBack()
+        setCanGoBack(canGoBackResult)
+      } catch (err) {
+        console.error('Error checking if can go back:', err)
+        setCanGoBack(false)
+      }
+    }
+
+    updateCanGoBack()
+  }, [appState])
 
   const toggleSidebar = useCallback(() => {
     setSidebarCollapsed(prev => {
@@ -202,6 +226,26 @@ function App() {
     }
   }, [])
 
+  const handleOpenFolder = useCallback(async (folderPath) => {
+    try {
+      const newState = await OpenFolder(folderPath)
+      setAppState(newState)
+    } catch (err) {
+      console.error('Error opening folder:', err)
+      showToast(`打开文件夹失败: ${err.message || err}`, 'error')
+    }
+  }, [])
+
+  const handleGoBack = useCallback(async () => {
+    try {
+      const newState = await GoBack()
+      setAppState(newState)
+    } catch (err) {
+      console.error('Error going back:', err)
+      showToast(`返回上层失败: ${err.message || err}`, 'error')
+    }
+  }, [])
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
@@ -240,6 +284,9 @@ function App() {
       <MainContent
         appState={appState}
         onLaunchFile={handleLaunchFile}
+        onOpenFolder={handleOpenFolder}
+        onGoBack={handleGoBack}
+        canGoBack={canGoBack}
       />
       {toast && <Toast message={toast.message} type={toast.type} />}
     </div>

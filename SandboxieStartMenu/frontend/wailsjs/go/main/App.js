@@ -6,6 +6,10 @@ export function AddAvailableSandbox(arg1) {
   return window['go']['main']['App']['AddAvailableSandbox'](arg1);
 }
 
+export function CanGoBack() {
+  return window['go']['main']['App']['CanGoBack']();
+}
+
 export function GetAppState() {
   return window['go']['main']['App']['GetAppState']();
 }
@@ -18,6 +22,10 @@ export function GetFileIcon(arg1) {
   return window['go']['main']['App']['GetFileIcon'](arg1);
 }
 
+export function GoBack() {
+  return window['go']['main']['App']['GoBack']();
+}
+
 export function IsSandboxieAvailable() {
   return window['go']['main']['App']['IsSandboxieAvailable']();
 }
@@ -28,6 +36,10 @@ export function LaunchProgram(arg1) {
 
 export function OpenConfigFile() {
   return window['go']['main']['App']['OpenConfigFile']();
+}
+
+export function OpenFolder(arg1) {
+  return window['go']['main']['App']['OpenFolder'](arg1);
 }
 
 export function OpenFolderDialog() {

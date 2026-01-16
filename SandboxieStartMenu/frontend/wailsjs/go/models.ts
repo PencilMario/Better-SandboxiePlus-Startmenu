@@ -5,6 +5,7 @@ export namespace main {
 	    path: string;
 	    type: string;
 	    icon?: string;
+	    isDir: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new FileInfo(source);
@@ -16,6 +17,7 @@ export namespace main {
 	        this.path = source["path"];
 	        this.type = source["type"];
 	        this.icon = source["icon"];
+	        this.isDir = source["isDir"];
 	    }
 	}
 	export class AppState {

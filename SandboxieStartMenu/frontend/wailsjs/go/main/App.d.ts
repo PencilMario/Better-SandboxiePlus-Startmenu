@@ -4,17 +4,23 @@ import {main} from '../models';
 
 export function AddAvailableSandbox(arg1:string):Promise<main.AppState>;
 
+export function CanGoBack():Promise<boolean>;
+
 export function GetAppState():Promise<main.AppState>;
 
 export function GetAvailableSandboxes():Promise<Array<string>>;
 
 export function GetFileIcon(arg1:string):Promise<string>;
 
+export function GoBack():Promise<main.AppState>;
+
 export function IsSandboxieAvailable():Promise<boolean>;
 
 export function LaunchProgram(arg1:string):Promise<main.LaunchResponse>;
 
 export function OpenConfigFile():Promise<void>;
+
+export function OpenFolder(arg1:string):Promise<main.AppState>;
 
 export function OpenFolderDialog():Promise<string>;
 

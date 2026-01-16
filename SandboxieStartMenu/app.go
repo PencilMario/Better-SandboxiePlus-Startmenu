@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -39,7 +40,7 @@ func (a *App) GetAppState() *AppState {
 
 	if config.CurrentFolder != "" {
 		var err error
-		files, err = a.fileManager.GetExecutableFiles(config.CurrentFolder)
+		files, err = a.fileManager.GetDirectoryContents(config.CurrentFolder)
 		if err != nil {
 			files = []FileInfo{}
 		}
@@ -212,4 +213,63 @@ func (a *App) OpenConfigFile() error {
 	}
 
 	return nil
+}
+
+// OpenFolder opens a subfolder and returns the updated state
+func (a *App) OpenFolder(folderPath string) (*AppState, error) {
+	if err := a.fileManager.ValidateDirectory(folderPath); err != nil {
+		return nil, fmt.Errorf("invalid folder: %v", err)
+	}
+
+	if err := a.configManager.SetCurrentFolder(folderPath); err != nil {
+		return nil, err
+	}
+
+	return a.GetAppState(), nil
+}
+
+// GoBack navigates to the parent folder if possible
+func (a *App) GoBack() (*AppState, error) {
+	config := a.configManager.GetConfig()
+	if config.CurrentFolder == "" {
+		return a.GetAppState(), nil
+	}
+
+	parentDir := filepath.Dir(config.CurrentFolder)
+	if parentDir == config.CurrentFolder {
+		// Already at root (e.g., C:\ or D:\)
+		return a.GetAppState(), nil
+	}
+
+	// Check if parent directory exists and is accessible
+	if err := a.fileManager.ValidateDirectory(parentDir); err != nil {
+		return nil, fmt.Errorf("cannot go back: %v", err)
+	}
+
+	// Set current folder to parent directory
+	if err := a.configManager.SetCurrentFolder(parentDir); err != nil {
+		return nil, err
+	}
+
+	return a.GetAppState(), nil
+}
+
+// CanGoBack checks if it's possible to navigate to the parent folder
+func (a *App) CanGoBack() bool {
+	config := a.configManager.GetConfig()
+	if config.CurrentFolder == "" {
+		return false
+	}
+
+	parentDir := filepath.Dir(config.CurrentFolder)
+	if parentDir == config.CurrentFolder {
+		return false // Already at root
+	}
+
+	// Check if parent directory exists and is accessible
+	if err := a.fileManager.ValidateDirectory(parentDir); err != nil {
+		return false
+	}
+
+	return true
 }

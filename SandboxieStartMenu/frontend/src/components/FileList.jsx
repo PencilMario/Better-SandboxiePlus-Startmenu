@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { GetFileIcon } from '../../wailsjs/go/main/App'
 import FileItem from './FileItem'
 
-function FileList({ files, onLaunchFile }) {
+function FileList({ files, onLaunchFile, onOpenFolder }) {
   const [fileIcons, setFileIcons] = useState({})
   const [loadingIcons, setLoadingIcons] = useState(true)
 
@@ -50,6 +50,7 @@ function FileList({ files, onLaunchFile }) {
           file={file}
           icon={fileIcons[file.path]}
           onLaunch={onLaunchFile}
+          onOpenFolder={onOpenFolder}
         />
       ))}
     </div>

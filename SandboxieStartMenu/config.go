@@ -50,11 +50,15 @@ func (cm *ConfigManager) Load() error {
 	data, err := os.ReadFile(cm.configPath)
 	if err != nil {
 		if os.IsNotExist(err) {
+			// Create initial config with empty folders
 			cm.config = &Config{
 				FolderPaths:        []string{},
+				CurrentFolder:      "",
 				SelectedSandbox:    "DefaultBox",
 				AvailableSandboxes: []string{"DefaultBox", "__ask__"},
 			}
+			// Ensure default folders are added
+			cm.ensureDefaultFolders()
 			return nil
 		}
 		return err
@@ -66,6 +70,8 @@ func (cm *ConfigManager) Load() error {
 
 	// Ensure DefaultBox and __ask__ are always in the list
 	cm.ensureDefaultSandboxes()
+	// Ensure default folders are always in the list
+	cm.ensureDefaultFolders()
 	return nil
 }
 
@@ -107,6 +113,68 @@ func (cm *ConfigManager) ensureDefaultSandboxes() {
 	}
 }
 
+// ensureDefaultFolders ensures default folders (Start Menu and Desktop) are always in the list
+func (cm *ConfigManager) ensureDefaultFolders() {
+	// Get default folder paths
+	defaultFolders := cm.getDefaultFolderPaths()
+
+	// Add any missing default folders
+	for _, defaultFolder := range defaultFolders {
+		found := false
+		for _, existingFolder := range cm.config.FolderPaths {
+			if existingFolder == defaultFolder {
+				found = true
+				break
+			}
+		}
+		if !found {
+			// Insert at beginning to keep default folders first
+			cm.config.FolderPaths = append([]string{defaultFolder}, cm.config.FolderPaths...)
+		}
+	}
+
+	// Ensure we have a current folder if folders exist
+	if cm.config.CurrentFolder == "" && len(cm.config.FolderPaths) > 0 {
+		cm.config.CurrentFolder = cm.config.FolderPaths[0]
+	}
+}
+
+// getDefaultFolderPaths returns the list of default folder paths that should always exist
+func (cm *ConfigManager) getDefaultFolderPaths() []string {
+	var defaultFolders []string
+
+	// Add Start Menu folder if it exists
+	programData := os.Getenv("PROGRAMDATA")
+	if programData != "" {
+		startMenuPath := filepath.Join(programData, "Microsoft", "Windows", "Start Menu", "Programs")
+		if _, err := os.Stat(startMenuPath); err == nil {
+			defaultFolders = append(defaultFolders, startMenuPath)
+		}
+	}
+
+	// Add Desktop folder if it exists
+	userProfile := os.Getenv("USERPROFILE")
+	if userProfile != "" {
+		desktopPath := filepath.Join(userProfile, "Desktop")
+		if _, err := os.Stat(desktopPath); err == nil {
+			defaultFolders = append(defaultFolders, desktopPath)
+		}
+	}
+
+	return defaultFolders
+}
+
+// isDefaultFolder checks if a path is a default folder
+func (cm *ConfigManager) isDefaultFolder(path string) bool {
+	defaultFolders := cm.getDefaultFolderPaths()
+	for _, defaultFolder := range defaultFolders {
+		if path == defaultFolder {
+			return true
+		}
+	}
+	return false
+}
+
 // AddFolderPath adds a folder path to the configuration
 func (cm *ConfigManager) AddFolderPath(path string) error {
 	for _, p := range cm.config.FolderPaths {
@@ -121,6 +189,11 @@ func (cm *ConfigManager) AddFolderPath(path string) error {
 
 // RemoveFolderPath removes a folder path from the configuration
 func (cm *ConfigManager) RemoveFolderPath(path string) error {
+	// Don't allow removing default folders
+	if cm.isDefaultFolder(path) {
+		return nil
+	}
+
 	for i, p := range cm.config.FolderPaths {
 		if p == path {
 			cm.config.FolderPaths = append(cm.config.FolderPaths[:i], cm.config.FolderPaths[i+1:]...)

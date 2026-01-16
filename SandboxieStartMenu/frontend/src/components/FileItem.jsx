@@ -1,7 +1,11 @@
 import React from 'react'
 
-function FileItem({ file, icon, onLaunch }) {
+function FileItem({ file, icon, onLaunch, onOpenFolder }) {
   const getDefaultIcon = () => {
+    if (file.isDir) {
+      return '📁'
+    }
+
     switch (file.type) {
       case 'exe':
         return '⚙️'
@@ -41,14 +45,24 @@ function FileItem({ file, icon, onLaunch }) {
           </p>
         </div>
 
-        {/* Launch Button */}
-        <button
-          onClick={() => onLaunch(file.path)}
-          className="w-full px-2 py-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-medium rounded text-xs flex items-center justify-center gap-1 transition-colors duration-200 mt-1"
-        >
-          <span>🚀</span>
-          启动
-        </button>
+        {/* Action Button */}
+        {file.isDir ? (
+          <button
+            onClick={() => onOpenFolder(file.path)}
+            className="w-full px-2 py-1 bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white font-medium rounded text-xs flex items-center justify-center gap-1 transition-colors duration-200 mt-1"
+          >
+            <span>📂</span>
+            打开
+          </button>
+        ) : (
+          <button
+            onClick={() => onLaunch(file.path)}
+            className="w-full px-2 py-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-medium rounded text-xs flex items-center justify-center gap-1 transition-colors duration-200 mt-1"
+          >
+            <span>🚀</span>
+            启动
+          </button>
+        )}
       </div>
     </div>
   )

@@ -1,17 +1,30 @@
 import React from 'react'
 import FileList from './FileList'
 
-function MainContent({ appState, onLaunchFile }) {
+function MainContent({ appState, onLaunchFile, onOpenFolder, onGoBack, canGoBack }) {
   return (
     <main className="flex-1 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 text-white p-6 shadow-md">
-        <h2 className="text-3xl font-bold">程序启动器</h2>
-        <p className="text-blue-100 mt-1">
-          {appState.currentFolder
-            ? `文件夹: ${appState.currentFolder}`
-            : '选择文件夹以查看程序'}
-        </p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-3xl font-bold">程序启动器</h2>
+            <p className="text-blue-100 mt-1">
+              {appState.currentFolder
+                ? `文件夹: ${appState.currentFolder}`
+                : '选择文件夹以查看程序'}
+            </p>
+          </div>
+          {canGoBack && (
+            <button
+              onClick={onGoBack}
+              className="px-4 py-2 bg-blue-700 hover:bg-blue-800 dark:bg-blue-800 dark:hover:bg-blue-900 text-white font-medium rounded-lg flex items-center gap-2 transition-colors duration-200"
+            >
+              <span>⬅️</span>
+              返回上层
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Content Area */}
@@ -28,6 +41,7 @@ function MainContent({ appState, onLaunchFile }) {
           <FileList
             files={appState.files || []}
             onLaunchFile={onLaunchFile}
+            onOpenFolder={onOpenFolder}
           />
         )}
       </div>
