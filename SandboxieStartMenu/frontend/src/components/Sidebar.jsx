@@ -1,7 +1,17 @@
-import React, { useState } from 'react'
+import React from 'react'
 import FolderList from './FolderList'
 import SandboxSelector from './SandboxSelector'
 import SandboxManager from './SandboxManager'
+import { Badge, IconButton } from './ui'
+import {
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  FolderPlus,
+  PanelLeft,
+  Settings,
+  Shield,
+} from 'lucide-react'
 
 function Sidebar({
   appState,
@@ -17,128 +27,99 @@ function Sidebar({
   onToggle,
 }) {
   return (
-    <aside className={`${isCollapsed ? 'w-16' : 'w-80'} bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-sm overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800 transition-all duration-300`}>
-      <div className="p-6">
-        {/* Header */}
-        <div className="mb-8 flex items-start justify-between">
-          {!isCollapsed ? (
-            <>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                  <span className="text-2xl">🔒</span>
-                  沙盒
-                </h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">开始菜单</p>
+    <aside className="flex h-screen flex-shrink-0 border-r border-zinc-200 bg-[#f6f8fa] dark:border-[#30363d] dark:bg-[#0d1117]">
+      <div className="flex w-14 flex-col items-center gap-2 border-r border-zinc-200 bg-white px-2 py-3 dark:border-[#30363d] dark:bg-[#161b22]">
+        <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-[#24292f] text-white dark:bg-[#238636]">
+          <Shield size={21} />
+        </div>
+
+        <div className="flex flex-1 flex-col items-center gap-1">
+          <IconButton label={isCollapsed ? '展开侧边栏' : '收起侧边栏'} onClick={onToggle}>
+            {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          </IconButton>
+          <IconButton label="添加文件夹" onClick={onAddFolder}>
+            <FolderPlus size={18} />
+          </IconButton>
+          <IconButton label="打开 Sandboxie Manager" onClick={onOpenSandboxieManager}>
+            <ExternalLink size={18} />
+          </IconButton>
+          <IconButton label="打开配置文件" onClick={onOpenConfigFile}>
+            <Settings size={18} />
+          </IconButton>
+        </div>
+
+        <IconButton label={isCollapsed ? '展开侧边栏' : '收起侧边栏'} onClick={onToggle}>
+          <PanelLeft size={18} />
+        </IconButton>
+      </div>
+
+      <div className={`${isCollapsed ? 'w-0 opacity-0' : 'w-72 opacity-100'} overflow-hidden bg-[#f6f8fa] transition-all duration-200 dark:bg-[#0d1117]`}>
+        <div className="flex h-full w-72 flex-col">
+          <div className="border-b border-zinc-200 px-4 py-4 dark:border-[#30363d]">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h1 className="truncate text-sm font-semibold text-zinc-950 dark:text-[#f0f6fc]">Sandboxie Start</h1>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-[#8b949e]">干净的沙盒启动器</p>
               </div>
-              <button
-                onClick={onToggle}
-                className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                title="收起侧边栏"
-              >
-                <span className="text-xl">←</span>
-              </button>
-            </>
-          ) : (
-            <div className="w-full flex flex-col items-center space-y-4">
-              <button
-                onClick={onToggle}
-                className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                title="展开侧边栏"
-              >
-                <span className="text-xl">→</span>
-              </button>
-              <button
-                onClick={onAddFolder}
-                className="p-2 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                title="添加文件夹"
-              >
-                <span className="text-xl">📁</span>
-              </button>
-              <button
-                onClick={onOpenSandboxieManager}
-                className="p-2 text-gray-500 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
-                title="打开 Sandboxie Manager"
-              >
-                <span className="text-xl">🔒</span>
-              </button>
-              <button
-                onClick={onOpenConfigFile}
-                className="p-2 text-gray-500 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors"
-                title="打开配置文件"
-              >
-                <span className="text-xl">⚙️</span>
-              </button>
+              <Badge tone={appState.selectedSandbox === '__ask__' ? 'warning' : 'success'}>
+                {appState.selectedSandbox === '__ask__' ? '询问' : appState.selectedSandbox || 'DefaultBox'}
+              </Badge>
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* Folders Section */}
-        <div className={`mb-8 ${isCollapsed ? 'hidden' : ''}`}>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-            <span className="text-lg">📁</span>
-            文件夹
-          </h2>
-          <FolderList
-            folders={appState.folderPaths || []}
-            currentFolder={appState.currentFolder}
-            onSelectFolder={onSelectFolder}
-            onRemoveFolder={onRemoveFolder}
-          />
-          <button
-            onClick={onAddFolder}
-            className="w-full mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
-          >
-            <span>+</span>
-            添加文件夹
-          </button>
-        </div>
+          <div className="flex-1 overflow-y-auto px-3 py-4">
+            <section>
+              <div className="mb-2 flex items-center justify-between px-1">
+                <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-[#8b949e]">文件夹</h2>
+                <IconButton label="添加文件夹" onClick={onAddFolder} className="h-7 w-7">
+                  <FolderPlus size={15} />
+                </IconButton>
+              </div>
+              <FolderList
+                folders={appState.folderPaths || []}
+                currentFolder={appState.currentFolder}
+                onSelectFolder={onSelectFolder}
+                onRemoveFolder={onRemoveFolder}
+              />
+            </section>
 
-        {/* Sandbox Selector */}
-        <div className={`mb-8 ${isCollapsed ? 'hidden' : ''}`}>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-            <span className="text-lg">🎯</span>
-            活动沙盒
-          </h2>
-          <SandboxSelector
-            sandboxes={appState.availableSandboxes || []}
-            selectedSandbox={appState.selectedSandbox}
-            onChangeSandbox={onChangeSandbox}
-          />
-        </div>
+            <section className="mt-5">
+              <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-[#8b949e]">活动沙盒</h2>
+              <SandboxSelector
+                sandboxes={appState.availableSandboxes || []}
+                selectedSandbox={appState.selectedSandbox}
+                onChangeSandbox={onChangeSandbox}
+              />
+            </section>
 
-        {!appState.sandboxesAutoDetected && (
-          <div className={`${isCollapsed ? 'hidden' : ''}`}>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <span className="text-lg">⚙️</span>
-              管理沙盒
-            </h2>
+            {!appState.sandboxesAutoDetected && (
+              <section className="mt-5">
+                <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-[#8b949e]">管理沙盒</h2>
             <SandboxManager
               sandboxes={appState.availableSandboxes || []}
               onAddSandbox={onAddSandbox}
               onRemoveSandbox={onRemoveSandbox}
             />
+              </section>
+            )}
           </div>
-        )}
 
-        {/* Configuration Button */}
-        <div className={`mt-8 ${isCollapsed ? 'hidden' : ''}`}>
-          <button
-            onClick={onOpenSandboxieManager}
-            className="w-full px-4 py-2 mb-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
-          >
-            <span>🔒</span>
-            打开 Sandboxie Manager
-          </button>
-          <button
-            onClick={onOpenConfigFile}
-            className="w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
-          >
-            <span>⚙️</span>
-            打开配置文件
-          </button>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-            在默认文本编辑器中打开配置文件
-          </p>
+          <div className="border-t border-zinc-200 p-3 dark:border-[#30363d]">
+            <button
+              onClick={onOpenSandboxieManager}
+              className="mb-2 flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-200/70 dark:text-[#c9d1d9] dark:hover:bg-[#21262d]"
+            >
+              <ExternalLink size={16} />
+              打开 Sandboxie Manager
+            </button>
+            <button
+              onClick={onOpenConfigFile}
+              className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-200/70 dark:text-[#c9d1d9] dark:hover:bg-[#21262d]"
+            >
+              <Settings size={16} />
+              打开配置文件
+            </button>
+          </div>
         </div>
       </div>
     </aside>

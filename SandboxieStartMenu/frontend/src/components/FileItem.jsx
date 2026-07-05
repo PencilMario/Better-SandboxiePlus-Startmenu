@@ -1,67 +1,70 @@
 import React from 'react'
+import { File, Folder, Link, Play, Terminal } from 'lucide-react'
+import { Badge, Button } from './ui'
 
 function FileItem({ file, icon, onLaunch, onOpenFolder }) {
   const getDefaultIcon = () => {
     if (file.isDir) {
-      return '📁'
+      return <Folder size={20} />
     }
 
     switch (file.type) {
       case 'exe':
-        return '⚙️'
+        return <File size={20} />
       case 'lnk':
-        return '🔗'
+        return <Link size={20} />
       case 'bat':
       case 'cmd':
-        return '📝'
+        return <Terminal size={20} />
       default:
-        return '📄'
+        return <File size={20} />
     }
   }
 
+  const typeLabel = file.isDir ? '文件夹' : file.type?.toUpperCase() || '文件'
+  const typeTone = file.isDir ? 'neutral' : file.type === 'exe' ? 'success' : 'warning'
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-lg dark:hover:shadow-blue-900/20 transition-all duration-200 overflow-hidden group p-2 flex gap-2 items-stretch">
-      {/* Icon Area - Left */}
-      <div className="flex-shrink-0 w-14 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center rounded border border-gray-200 dark:border-gray-700 group-hover:from-blue-50 dark:group-hover:from-blue-900/30 group-hover:to-indigo-50 dark:group-hover:to-indigo-900/30 transition-colors">
+    <div className="group flex min-h-[68px] items-center gap-3 px-4 py-3 transition-colors hover:bg-zinc-50 dark:hover:bg-[#21262d]">
+      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md border border-zinc-200 bg-zinc-50 text-zinc-500 dark:border-[#30363d] dark:bg-[#0d1117] dark:text-[#8b949e]">
         {icon ? (
           <img
             src={icon}
             alt={file.name}
-            className="w-10 h-10 object-contain"
+            className="h-7 w-7 object-contain"
           />
         ) : (
-          <span className="text-2xl">{getDefaultIcon()}</span>
+          getDefaultIcon()
         )}
       </div>
 
-      {/* Content Area - Right */}
-      <div className="flex-1 flex flex-col min-w-0 justify-between">
-        <div>
-          <h3 className="font-semibold text-gray-900 dark:text-white truncate text-sm" title={file.name}>
-            {file.name}
-          </h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400 truncate" title={file.path}>
-            {file.path}
-          </p>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <h3 className="truncate text-sm font-semibold text-zinc-950 dark:text-[#f0f6fc]" title={file.name}>{file.name}</h3>
+          <Badge tone={typeTone}>{typeLabel}</Badge>
         </div>
+        <p className="mt-1 truncate text-xs text-zinc-500 dark:text-[#8b949e]" title={file.path}>{file.path}</p>
+      </div>
 
-        {/* Action Button */}
+      <div className="flex flex-shrink-0 items-center">
         {file.isDir ? (
-          <button
+          <Button
             onClick={() => onOpenFolder(file.path)}
-            className="w-full px-2 py-1 bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white font-medium rounded text-xs flex items-center justify-center gap-1 transition-colors duration-200 mt-1"
+            variant="secondary"
+            size="sm"
           >
-            <span>📂</span>
+            <Folder size={14} />
             打开
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button
             onClick={() => onLaunch(file.path)}
-            className="w-full px-2 py-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-medium rounded text-xs flex items-center justify-center gap-1 transition-colors duration-200 mt-1"
+            variant="primary"
+            size="sm"
           >
-            <span>🚀</span>
+            <Play size={14} />
             启动
-          </button>
+          </Button>
         )}
       </div>
     </div>

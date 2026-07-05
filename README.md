@@ -7,6 +7,10 @@
 
 一个为 Windows Sandboxie 设计的增强型开始菜单应用程序，提供更好的程序启动体验和沙盒管理功能。
 
+## 预览
+
+![Better Sandboxie Plus Start Menu 预览](docs/images/preview.png)
+
 ## ✨ 主要特性
 
 ### 🎯 核心功能

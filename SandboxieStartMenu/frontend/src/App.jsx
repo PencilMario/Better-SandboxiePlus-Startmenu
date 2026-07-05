@@ -22,6 +22,8 @@ import Sidebar from './components/Sidebar'
 import MainContent from './components/MainContent'
 import Toast from './components/Toast'
 import AddFolderDialog from './components/AddFolderDialog'
+import { ConfirmDialog } from './components/ui'
+import { Loader2, ShieldAlert } from 'lucide-react'
 
 function App() {
   const [appState, setAppState] = useState(null)
@@ -32,6 +34,7 @@ function App() {
   const [canGoBack, setCanGoBack] = useState(false)
   const [showAddFolderDialog, setShowAddFolderDialog] = useState(false)
   const [sandboxFolders, setSandboxFolders] = useState([])
+  const [confirmDialog, setConfirmDialog] = useState(null)
 
   // Initialize app and detect system theme
   useEffect(() => {
@@ -117,6 +120,24 @@ function App() {
     setTimeout(() => setToast(null), 3000)
   }
 
+  const requestConfirm = useCallback((options) => {
+    return new Promise((resolve) => {
+      setConfirmDialog({
+        ...options,
+        onResolve: resolve,
+      })
+    })
+  }, [])
+
+  const resolveConfirm = useCallback((result) => {
+    setConfirmDialog((dialog) => {
+      if (dialog?.onResolve) {
+        dialog.onResolve(result)
+      }
+      return null
+    })
+  }, [])
+
   const handleSelectFolder = useCallback(async (folderPath) => {
     try {
       const newState = await SetCurrentFolder(folderPath)
@@ -128,7 +149,14 @@ function App() {
   }, [])
 
   const handleRemoveFolder = useCallback(async (folderPath) => {
-    if (!window.confirm(`是否从列表中移除文件夹 "${folderPath}"？`)) {
+    const confirmed = await requestConfirm({
+      title: '移除文件夹',
+      description: `是否从列表中移除 "${folderPath}"？这不会删除磁盘上的文件。`,
+      confirmLabel: '移除',
+      destructive: true,
+    })
+
+    if (!confirmed) {
       return
     }
 
@@ -140,7 +168,7 @@ function App() {
       console.error('Error removing folder:', err)
       showToast(`移除文件夹失败: ${err.message || err}`, 'error')
     }
-  }, [])
+  }, [requestConfirm])
 
   const handleAddFolder = useCallback(async () => {
     try {
@@ -218,7 +246,14 @@ function App() {
       return
     }
 
-    if (!window.confirm(`是否从列表中移除沙盒 "${sandbox}"？`)) {
+    const confirmed = await requestConfirm({
+      title: '移除沙盒',
+      description: `是否从列表中移除沙盒 "${sandbox}"？这不会修改 Sandboxie 本身。`,
+      confirmLabel: '移除',
+      destructive: true,
+    })
+
+    if (!confirmed) {
       return
     }
 
@@ -230,7 +265,7 @@ function App() {
       console.error('Error removing sandbox:', err)
       showToast(`移除沙盒失败: ${err.message || err}`, 'error')
     }
-  }, [])
+  }, [requestConfirm])
 
   const handleLaunchFile = useCallback(async (filePath) => {
     try {
@@ -288,10 +323,10 @@ function App() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="flex h-screen items-center justify-center bg-[#f6f8fa] text-zinc-700 dark:bg-[#0d1117] dark:text-[#c9d1d9]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300">加载中...</p>
+          <Loader2 className="mx-auto mb-4 animate-spin text-[#0969da] dark:text-[#58a6ff]" size={30} />
+          <p className="text-sm font-medium">正在加载 Sandboxie Start Menu</p>
         </div>
       </div>
     )
@@ -299,16 +334,18 @@ function App() {
 
   if (!appState) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="flex h-screen items-center justify-center bg-[#f6f8fa] text-zinc-700 dark:bg-[#0d1117] dark:text-[#c9d1d9]">
         <div className="text-center">
-          <p className="text-red-600 dark:text-red-400 text-lg">加载应用失败</p>
+          <ShieldAlert className="mx-auto mb-4 text-[#cf222e] dark:text-[#f85149]" size={34} />
+          <p className="text-base font-semibold text-zinc-950 dark:text-[#f0f6fc]">加载应用失败</p>
+          <p className="mt-2 text-sm text-zinc-500 dark:text-[#8b949e]">请确认 Sandboxie 已安装并重新启动应用。</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="flex h-screen bg-[#f6f8fa] text-zinc-900 dark:bg-[#0d1117] dark:text-[#c9d1d9]">
       <Sidebar
         appState={appState}
         onSelectFolder={handleSelectFolder}
@@ -337,6 +374,15 @@ function App() {
           onClose={() => setShowAddFolderDialog(false)}
         />
       )}
+      <ConfirmDialog
+        open={Boolean(confirmDialog)}
+        title={confirmDialog?.title}
+        description={confirmDialog?.description}
+        confirmLabel={confirmDialog?.confirmLabel}
+        destructive={confirmDialog?.destructive}
+        onConfirm={() => resolveConfirm(true)}
+        onCancel={() => resolveConfirm(false)}
+      />
       {toast && <Toast message={toast.message} type={toast.type} />}
     </div>
   )
