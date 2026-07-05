@@ -2,20 +2,27 @@ package main
 
 // FileInfo represents a file or folder in the directory
 type FileInfo struct {
-	Name     string `json:"name"`
-	Path     string `json:"path"`
-	Type     string `json:"type"` // "exe", "bat", "cmd", "lnk", "folder"
-	Icon     string `json:"icon,omitempty"` // Base64 encoded icon or empty
-	IsDir    bool   `json:"isDir"` // true for folders, false for files
+	Name  string `json:"name"`
+	Path  string `json:"path"`
+	Type  string `json:"type"`           // "exe", "bat", "cmd", "lnk", "folder"
+	Icon  string `json:"icon,omitempty"` // Base64 encoded icon or empty
+	IsDir bool   `json:"isDir"`          // true for folders, false for files
 }
 
 // AppState represents the current application state
 type AppState struct {
-	FolderPaths     []string `json:"folderPaths"`
-	CurrentFolder   string   `json:"currentFolder"`
-	Files           []FileInfo `json:"files"`
-	SelectedSandbox string   `json:"selectedSandbox"`
-	AvailableSandboxes []string `json:"availableSandboxes"`
+	FolderPaths           []string   `json:"folderPaths"`
+	CurrentFolder         string     `json:"currentFolder"`
+	Files                 []FileInfo `json:"files"`
+	SelectedSandbox       string     `json:"selectedSandbox"`
+	AvailableSandboxes    []string   `json:"availableSandboxes"`
+	SandboxesAutoDetected bool       `json:"sandboxesAutoDetected"`
+}
+
+// SandboxFolder represents a sandbox and its root folder on disk.
+type SandboxFolder struct {
+	Sandbox string `json:"sandbox"`
+	Path    string `json:"path"`
 }
 
 // LaunchRequest represents a request to launch a program

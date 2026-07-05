@@ -15,11 +15,13 @@ import {
   OpenFolder,
   GoBack,
   CanGoBack,
-  OpenSandboxieManager
+  OpenSandboxieManager,
+  GetAvailableSandboxFolders
 } from '../wailsjs/go/main/App'
 import Sidebar from './components/Sidebar'
 import MainContent from './components/MainContent'
 import Toast from './components/Toast'
+import AddFolderDialog from './components/AddFolderDialog'
 
 function App() {
   const [appState, setAppState] = useState(null)
@@ -28,6 +30,8 @@ function App() {
   const [isDark, setIsDark] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [canGoBack, setCanGoBack] = useState(false)
+  const [showAddFolderDialog, setShowAddFolderDialog] = useState(false)
+  const [sandboxFolders, setSandboxFolders] = useState([])
 
   // Initialize app and detect system theme
   useEffect(() => {
@@ -140,6 +144,19 @@ function App() {
 
   const handleAddFolder = useCallback(async () => {
     try {
+      const folders = await GetAvailableSandboxFolders()
+      setSandboxFolders(folders || [])
+      setShowAddFolderDialog(true)
+    } catch (err) {
+      console.error('Error loading sandbox folders:', err)
+      setSandboxFolders([])
+      setShowAddFolderDialog(true)
+    }
+  }, [])
+
+  const handleManualAddFolder = useCallback(async () => {
+    try {
+      setShowAddFolderDialog(false)
       const folderPath = await OpenFolderDialog()
       if (folderPath && folderPath !== '') {
         const newState = await SelectFolder(folderPath)
@@ -149,6 +166,18 @@ function App() {
     } catch (err) {
       console.error('Error opening folder dialog:', err)
       showToast(`打开文件夹对话框失败: ${err.message || err}`, 'error')
+    }
+  }, [])
+
+  const handleSelectSandboxFolder = useCallback(async (folderPath) => {
+    try {
+      const newState = await SelectFolder(folderPath)
+      setAppState(newState)
+      setShowAddFolderDialog(false)
+      showToast(`沙盒文件夹已添加: ${folderPath}`, 'success')
+    } catch (err) {
+      console.error('Error adding sandbox folder:', err)
+      showToast(`添加沙盒文件夹失败: ${err.message || err}`, 'error')
     }
   }, [])
 
@@ -300,6 +329,14 @@ function App() {
         onGoBack={handleGoBack}
         canGoBack={canGoBack}
       />
+      {showAddFolderDialog && (
+        <AddFolderDialog
+          sandboxFolders={sandboxFolders}
+          onManualSelect={handleManualAddFolder}
+          onSelectSandboxFolder={handleSelectSandboxFolder}
+          onClose={() => setShowAddFolderDialog(false)}
+        />
+      )}
       {toast && <Toast message={toast.message} type={toast.type} />}
     </div>
   )

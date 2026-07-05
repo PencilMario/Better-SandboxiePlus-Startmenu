@@ -26,6 +26,7 @@ export namespace main {
 	    files: FileInfo[];
 	    selectedSandbox: string;
 	    availableSandboxes: string[];
+	    sandboxesAutoDetected: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new AppState(source);
@@ -38,6 +39,7 @@ export namespace main {
 	        this.files = this.convertValues(source["files"], FileInfo);
 	        this.selectedSandbox = source["selectedSandbox"];
 	        this.availableSandboxes = source["availableSandboxes"];
+	        this.sandboxesAutoDetected = source["sandboxesAutoDetected"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -73,6 +75,20 @@ export namespace main {
 	        this.success = source["success"];
 	        this.message = source["message"];
 	        this.pid = source["pid"];
+	    }
+	}
+	export class SandboxFolder {
+	    sandbox: string;
+	    path: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new SandboxFolder(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.sandbox = source["sandbox"];
+	        this.path = source["path"];
 	    }
 	}
 

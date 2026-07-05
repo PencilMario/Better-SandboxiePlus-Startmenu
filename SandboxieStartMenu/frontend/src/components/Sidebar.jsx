@@ -106,18 +106,19 @@ function Sidebar({
           />
         </div>
 
-        {/* Sandbox Manager */}
-        <div className={`${isCollapsed ? 'hidden' : ''}`}>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-            <span className="text-lg">⚙️</span>
-            管理沙盒
-          </h2>
-          <SandboxManager
-            sandboxes={appState.availableSandboxes || []}
-            onAddSandbox={onAddSandbox}
-            onRemoveSandbox={onRemoveSandbox}
-          />
-        </div>
+        {!appState.sandboxesAutoDetected && (
+          <div className={`${isCollapsed ? 'hidden' : ''}`}>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <span className="text-lg">⚙️</span>
+              管理沙盒
+            </h2>
+            <SandboxManager
+              sandboxes={appState.availableSandboxes || []}
+              onAddSandbox={onAddSandbox}
+              onRemoveSandbox={onRemoveSandbox}
+            />
+          </div>
+        )}
 
         {/* Configuration Button */}
         <div className={`mt-8 ${isCollapsed ? 'hidden' : ''}`}>

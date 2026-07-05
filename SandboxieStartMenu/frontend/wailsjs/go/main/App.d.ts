@@ -8,6 +8,8 @@ export function CanGoBack():Promise<boolean>;
 
 export function GetAppState():Promise<main.AppState>;
 
+export function GetAvailableSandboxFolders():Promise<Array<main.SandboxFolder>>;
+
 export function GetAvailableSandboxes():Promise<Array<string>>;
 
 export function GetFileIcon(arg1:string):Promise<string>;

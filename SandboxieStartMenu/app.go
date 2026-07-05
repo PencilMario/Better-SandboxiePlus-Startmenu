@@ -46,14 +46,16 @@ func (a *App) GetAppState() *AppState {
 		}
 	}
 
-	sandboxes := a.configManager.GetAvailableSandboxes()
+	detectedSandboxes, _ := a.sandboxieManager.GetConfiguredSandboxes()
+	sandboxes, sandboxesAutoDetected := resolveAvailableSandboxes(detectedSandboxes, a.configManager.GetAvailableSandboxes())
 
 	return &AppState{
-		FolderPaths:        config.FolderPaths,
-		CurrentFolder:      config.CurrentFolder,
-		Files:              files,
-		SelectedSandbox:    config.SelectedSandbox,
-		AvailableSandboxes: sandboxes,
+		FolderPaths:           config.FolderPaths,
+		CurrentFolder:         config.CurrentFolder,
+		Files:                 files,
+		SelectedSandbox:       config.SelectedSandbox,
+		AvailableSandboxes:    sandboxes,
+		SandboxesAutoDetected: sandboxesAutoDetected,
 	}
 }
 
@@ -176,7 +178,74 @@ func (a *App) RemoveAvailableSandbox(sandbox string) (*AppState, error) {
 
 // GetAvailableSandboxes returns the list of available sandboxes
 func (a *App) GetAvailableSandboxes() []string {
-	return a.configManager.GetAvailableSandboxes()
+	detectedSandboxes, _ := a.sandboxieManager.GetConfiguredSandboxes()
+	sandboxes, _ := resolveAvailableSandboxes(detectedSandboxes, a.configManager.GetAvailableSandboxes())
+	return sandboxes
+}
+
+// GetAvailableSandboxFolders returns sandbox root folders that are not already in the folder list.
+func (a *App) GetAvailableSandboxFolders() []SandboxFolder {
+	folders, err := a.sandboxieManager.GetSandboxRootFolders()
+	if err != nil {
+		return []SandboxFolder{}
+	}
+	return filterUnaddedSandboxFolders(folders, a.configManager.GetConfig().FolderPaths)
+}
+
+func resolveAvailableSandboxes(detected []string, manual []string) ([]string, bool) {
+	autoDetected := len(detected) > 0
+	return mergeDetectedSandboxes(detected, manual), autoDetected
+}
+
+func mergeDetectedSandboxes(detected []string, manual []string) []string {
+	source := manual
+	if len(detected) > 0 {
+		source = detected
+	}
+
+	sandboxes := []string{}
+	seen := map[string]bool{}
+	for _, sandbox := range source {
+		sandbox = strings.TrimSpace(sandbox)
+		if sandbox == "" || seen[sandbox] {
+			continue
+		}
+		seen[sandbox] = true
+		sandboxes = append(sandboxes, sandbox)
+	}
+
+	if len(sandboxes) == 0 {
+		sandboxes = append(sandboxes, "DefaultBox")
+		seen["DefaultBox"] = true
+	}
+
+	if !seen["__ask__"] {
+		sandboxes = append(sandboxes, "__ask__")
+	}
+
+	return sandboxes
+}
+
+func filterUnaddedSandboxFolders(folders []SandboxFolder, existingFolders []string) []SandboxFolder {
+	existing := map[string]bool{}
+	for _, folder := range existingFolders {
+		cleaned := filepath.Clean(folder)
+		existing[strings.ToLower(cleaned)] = true
+	}
+
+	available := []SandboxFolder{}
+	for _, folder := range folders {
+		cleaned := filepath.Clean(folder.Path)
+		if existing[strings.ToLower(cleaned)] {
+			continue
+		}
+		available = append(available, SandboxFolder{
+			Sandbox: folder.Sandbox,
+			Path:    cleaned,
+		})
+	}
+
+	return available
 }
 
 // GetFileIcon returns the base64 encoded icon for a file

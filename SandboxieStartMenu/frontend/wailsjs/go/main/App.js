@@ -14,6 +14,10 @@ export function GetAppState() {
   return window['go']['main']['App']['GetAppState']();
 }
 
+export function GetAvailableSandboxFolders() {
+  return window['go']['main']['App']['GetAvailableSandboxFolders']();
+}
+
 export function GetAvailableSandboxes() {
   return window['go']['main']['App']['GetAvailableSandboxes']();
 }

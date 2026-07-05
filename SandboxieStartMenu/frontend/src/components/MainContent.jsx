@@ -1,7 +1,35 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import FileList from './FileList'
 
 function MainContent({ appState, onLaunchFile, onOpenFolder, onGoBack, canGoBack }) {
+  const [searchQuery, setSearchQuery] = useState('')
+
+  // Reset search when current folder changes
+  useEffect(() => {
+    setSearchQuery('')
+  }, [appState.currentFolder])
+
+  // Filter files based on search query
+  const filteredFiles = React.useMemo(() => {
+    if (!searchQuery.trim()) {
+      return appState.files || []
+    }
+
+    const query = searchQuery.toLowerCase().trim()
+    return (appState.files || []).filter(file =>
+      file.name.toLowerCase().includes(query) ||
+      file.path.toLowerCase().includes(query)
+    )
+  }, [appState.files, searchQuery])
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value)
+  }
+
+  const clearSearch = () => {
+    setSearchQuery('')
+  }
+
   return (
     <main className="flex-1 flex flex-col overflow-hidden">
       {/* Header */}
@@ -15,15 +43,41 @@ function MainContent({ appState, onLaunchFile, onOpenFolder, onGoBack, canGoBack
                 : '选择文件夹以查看程序'}
             </p>
           </div>
-          {canGoBack && (
-            <button
-              onClick={onGoBack}
-              className="px-4 py-2 bg-blue-700 hover:bg-blue-800 dark:bg-blue-800 dark:hover:bg-blue-900 text-white font-medium rounded-lg flex items-center gap-2 transition-colors duration-200"
-            >
-              <span>⬅️</span>
-              返回上层
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {/* Search Bar */}
+            {appState.currentFolder && (
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="搜索文件或文件夹..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  className="pl-10 pr-10 py-2 w-64 rounded-lg bg-blue-700/30 border border-blue-500/50 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                />
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-200">
+                  🔍
+                </span>
+                {searchQuery && (
+                  <button
+                    onClick={clearSearch}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-200 hover:text-white"
+                    title="清除搜索"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            )}
+            {canGoBack && (
+              <button
+                onClick={onGoBack}
+                className="px-4 py-2 bg-blue-700 hover:bg-blue-800 dark:bg-blue-800 dark:hover:bg-blue-900 text-white font-medium rounded-lg flex items-center gap-2 transition-colors duration-200"
+              >
+                <span>⬅️</span>
+                返回上层
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -38,11 +92,28 @@ function MainContent({ appState, onLaunchFile, onOpenFolder, onGoBack, canGoBack
             </div>
           </div>
         ) : (
-          <FileList
-            files={appState.files || []}
-            onLaunchFile={onLaunchFile}
-            onOpenFolder={onOpenFolder}
-          />
+          <>
+            {/* Search results info */}
+            {searchQuery && (
+              <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <p className="text-blue-800 dark:text-blue-200 text-sm">
+                  搜索 "<span className="font-semibold">{searchQuery}</span>" 找到 {filteredFiles.length} 个结果
+                  <button
+                    onClick={clearSearch}
+                    className="ml-2 px-2 py-1 text-xs bg-blue-100 dark:bg-blue-800 hover:bg-blue-200 dark:hover:bg-blue-700 text-blue-800 dark:text-blue-200 rounded transition-colors"
+                  >
+                    清除搜索
+                  </button>
+                </p>
+              </div>
+            )}
+            <FileList
+              files={filteredFiles}
+              onLaunchFile={onLaunchFile}
+              onOpenFolder={onOpenFolder}
+              searchQuery={searchQuery}
+            />
+          </>
         )}
       </div>
     </main>
