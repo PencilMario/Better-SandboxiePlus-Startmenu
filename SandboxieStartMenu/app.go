@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -136,7 +135,7 @@ func (a *App) OpenFolderDialog() (string, error) {
 
 // pickFolderPowerShell uses PowerShell to open folder picker dialog
 func pickFolderPowerShell() (string, error) {
-	cmd := exec.Command("powershell", "-Command", `
+	cmd := hiddenCommand("powershell", "-NoProfile", "-STA", "-Command", `
 		[System.Reflection.Assembly]::LoadWithPartialName('System.windows.forms') | Out-Null
 		$folder = New-Object System.Windows.Forms.FolderBrowserDialog
 		$folder.Description = "选择包含程序的文件夹"
@@ -276,7 +275,7 @@ func (a *App) OpenConfigFile() error {
 	}
 
 	// Open the config file with the default text editor on Windows
-	cmd := exec.Command("cmd", "/c", "start", "", configPath)
+	cmd := hiddenCommand("cmd", "/c", "start", "", configPath)
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("failed to open config file: %v", err)
 	}

@@ -23,7 +23,7 @@ function FolderList({ folders, currentFolder, onSelectFolder, onRemoveFolder }) 
         <div
           key={folder}
           className={cx(
-            'group flex items-center gap-2 rounded-md px-2 py-2 transition-colors',
+            'group flex items-stretch rounded-md transition-colors',
             folder === currentFolder
               ? 'bg-[#dbeafe] text-[#0969da] dark:bg-[#1f6feb26] dark:text-[#58a6ff]'
               : 'text-zinc-700 hover:bg-zinc-200/70 dark:text-[#c9d1d9] dark:hover:bg-[#21262d]'
@@ -31,7 +31,7 @@ function FolderList({ folders, currentFolder, onSelectFolder, onRemoveFolder }) 
         >
           <button
             onClick={() => onSelectFolder(folder)}
-            className="flex min-w-0 flex-1 items-center gap-2 text-left"
+            className="flex min-w-0 flex-1 items-center gap-2 px-2 py-2 text-left"
             title={folder}
           >
             <Folder size={16} className="flex-shrink-0" />
@@ -42,7 +42,7 @@ function FolderList({ folders, currentFolder, onSelectFolder, onRemoveFolder }) 
           <IconButton
             onClick={() => onRemoveFolder(folder)}
             label="移除文件夹"
-            className="h-7 w-7 opacity-0 group-hover:opacity-100 focus:opacity-100"
+            className="m-1 h-7 w-7 flex-shrink-0 opacity-0 group-hover:opacity-100 focus:opacity-100"
           >
             <Trash2 size={14} />
           </IconButton>

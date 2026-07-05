@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -36,7 +35,7 @@ func NewSandboxieManager() *SandboxieManager {
 				startExePath: path,
 				sbieIniPath:  sbieIniPath,
 				commandOutput: func(name string, arg ...string) ([]byte, error) {
-					return exec.Command(name, arg...).Output()
+					return hiddenCommand(name, arg...).Output()
 				},
 			}
 		}
@@ -45,7 +44,7 @@ func NewSandboxieManager() *SandboxieManager {
 	return &SandboxieManager{
 		startExePath: "",
 		commandOutput: func(name string, arg ...string) ([]byte, error) {
-			return exec.Command(name, arg...).Output()
+			return hiddenCommand(name, arg...).Output()
 		},
 	}
 }
@@ -69,7 +68,7 @@ func (sm *SandboxieManager) GetConfiguredSandboxes() ([]string, error) {
 	commandOutput := sm.commandOutput
 	if commandOutput == nil {
 		commandOutput = func(name string, arg ...string) ([]byte, error) {
-			return exec.Command(name, arg...).Output()
+			return hiddenCommand(name, arg...).Output()
 		}
 	}
 
@@ -134,7 +133,7 @@ func (sm *SandboxieManager) querySandboxSetting(sandbox string, setting string) 
 	commandOutput := sm.commandOutput
 	if commandOutput == nil {
 		commandOutput = func(name string, arg ...string) ([]byte, error) {
-			return exec.Command(name, arg...).Output()
+			return hiddenCommand(name, arg...).Output()
 		}
 	}
 
@@ -188,7 +187,7 @@ func (sm *SandboxieManager) LaunchProgram(filePath string, sandbox string) (int,
 	}
 	args = append(args, filePath)
 
-	cmd := exec.Command(sm.startExePath, args...)
+	cmd := hiddenCommand(sm.startExePath, args...)
 
 	// Start the process
 	err := cmd.Start()
@@ -205,7 +204,7 @@ func (sm *SandboxieManager) TerminateAllPrograms(sandbox string) error {
 		return fmt.Errorf("Sandboxie 未安装")
 	}
 
-	cmd := exec.Command(
+	cmd := hiddenCommand(
 		sm.startExePath,
 		"/box:"+sandbox,
 		"/terminate",
@@ -220,7 +219,7 @@ func (sm *SandboxieManager) DeleteSandboxContents(sandbox string) error {
 		return fmt.Errorf("Sandboxie 未安装")
 	}
 
-	cmd := exec.Command(
+	cmd := hiddenCommand(
 		sm.startExePath,
 		"/box:"+sandbox,
 		"delete_sandbox_silent",
@@ -250,7 +249,7 @@ func (sm *SandboxieManager) OpenSandboxieManager() error {
 		}
 	}
 
-	cmd := exec.Command(sandManPath)
+	cmd := hiddenCommand(sandManPath)
 
 	// Start the process
 	if err := cmd.Start(); err != nil {
