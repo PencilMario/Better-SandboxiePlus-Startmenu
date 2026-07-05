@@ -27,7 +27,7 @@ function Sidebar({
   onToggle,
 }) {
   return (
-    <aside className="flex h-screen flex-shrink-0 border-r border-zinc-200 bg-[#f6f8fa] dark:border-[#30363d] dark:bg-[#0d1117]">
+    <aside className="flex h-full flex-shrink-0 border-r border-zinc-200 bg-[#f6f8fa] dark:border-[#30363d] dark:bg-[#0d1117]">
       <div className="flex w-14 flex-col items-center gap-2 border-r border-zinc-200 bg-white px-2 py-3 dark:border-[#30363d] dark:bg-[#161b22]">
         <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-[#24292f] text-white dark:bg-[#238636]">
           <Shield size={21} />

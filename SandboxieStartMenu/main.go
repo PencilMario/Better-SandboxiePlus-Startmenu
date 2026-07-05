@@ -48,9 +48,12 @@ func main() {
 
 	// Create application with options
 	err = wails.Run(&options.App{
-		Title:  "SandboxieStartMenu",
-		Width:  1024,
-		Height: 768,
+		Title:     "SandboxieStartMenu",
+		Width:     1024,
+		Height:    768,
+		MinWidth:  860,
+		MinHeight: 600,
+		Frameless: true,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

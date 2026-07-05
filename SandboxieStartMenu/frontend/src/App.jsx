@@ -23,6 +23,7 @@ import Sidebar from './components/Sidebar'
 import MainContent from './components/MainContent'
 import Toast from './components/Toast'
 import AddFolderDialog from './components/AddFolderDialog'
+import TitleBar from './components/TitleBar'
 import { ConfirmDialog } from './components/ui'
 import { Loader2, ShieldAlert } from 'lucide-react'
 
@@ -343,10 +344,13 @@ function App() {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#f6f8fa] text-zinc-700 dark:bg-[#0d1117] dark:text-[#c9d1d9]">
-        <div className="text-center">
-          <Loader2 className="mx-auto mb-4 animate-spin text-[#0969da] dark:text-[#58a6ff]" size={30} />
-          <p className="text-sm font-medium">正在加载 Sandboxie Start Menu</p>
+      <div className="flex h-screen flex-col bg-[#f6f8fa] text-zinc-700 dark:bg-[#0d1117] dark:text-[#c9d1d9]">
+        <TitleBar />
+        <div className="flex flex-1 items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="mx-auto mb-4 animate-spin text-[#0969da] dark:text-[#58a6ff]" size={30} />
+            <p className="text-sm font-medium">正在加载 Sandboxie Start Menu</p>
+          </div>
         </div>
       </div>
     )
@@ -354,38 +358,44 @@ function App() {
 
   if (!appState) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#f6f8fa] text-zinc-700 dark:bg-[#0d1117] dark:text-[#c9d1d9]">
-        <div className="text-center">
-          <ShieldAlert className="mx-auto mb-4 text-[#cf222e] dark:text-[#f85149]" size={34} />
-          <p className="text-base font-semibold text-zinc-950 dark:text-[#f0f6fc]">加载应用失败</p>
-          <p className="mt-2 text-sm text-zinc-500 dark:text-[#8b949e]">请确认 Sandboxie 已安装并重新启动应用。</p>
+      <div className="flex h-screen flex-col bg-[#f6f8fa] text-zinc-700 dark:bg-[#0d1117] dark:text-[#c9d1d9]">
+        <TitleBar />
+        <div className="flex flex-1 items-center justify-center">
+          <div className="text-center">
+            <ShieldAlert className="mx-auto mb-4 text-[#cf222e] dark:text-[#f85149]" size={34} />
+            <p className="text-base font-semibold text-zinc-950 dark:text-[#f0f6fc]">加载应用失败</p>
+            <p className="mt-2 text-sm text-zinc-500 dark:text-[#8b949e]">请确认 Sandboxie 已安装并重新启动应用。</p>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex h-screen bg-[#f6f8fa] text-zinc-900 dark:bg-[#0d1117] dark:text-[#c9d1d9]">
-      <Sidebar
-        appState={appState}
-        onSelectFolder={handleSelectFolder}
-        onRemoveFolder={handleRemoveFolder}
-        onAddFolder={handleAddFolder}
-        onChangeSandbox={handleChangeSandbox}
-        onAddSandbox={handleAddSandbox}
-        onRemoveSandbox={handleRemoveSandbox}
-        onOpenConfigFile={handleOpenConfigFile}
-        onOpenSandboxieManager={handleOpenSandboxieManager}
-        isCollapsed={sidebarCollapsed}
-        onToggle={toggleSidebar}
-      />
-      <MainContent
-        appState={appState}
-        onLaunchFile={handleLaunchFile}
-        onOpenFolder={handleOpenFolder}
-        onGoBack={handleGoBack}
-        canGoBack={canGoBack}
-      />
+    <div className="flex h-screen flex-col bg-[#f6f8fa] text-zinc-900 dark:bg-[#0d1117] dark:text-[#c9d1d9]">
+      <TitleBar appState={appState} />
+      <div className="flex min-h-0 flex-1">
+        <Sidebar
+          appState={appState}
+          onSelectFolder={handleSelectFolder}
+          onRemoveFolder={handleRemoveFolder}
+          onAddFolder={handleAddFolder}
+          onChangeSandbox={handleChangeSandbox}
+          onAddSandbox={handleAddSandbox}
+          onRemoveSandbox={handleRemoveSandbox}
+          onOpenConfigFile={handleOpenConfigFile}
+          onOpenSandboxieManager={handleOpenSandboxieManager}
+          isCollapsed={sidebarCollapsed}
+          onToggle={toggleSidebar}
+        />
+        <MainContent
+          appState={appState}
+          onLaunchFile={handleLaunchFile}
+          onOpenFolder={handleOpenFolder}
+          onGoBack={handleGoBack}
+          canGoBack={canGoBack}
+        />
+      </div>
       {showAddFolderDialog && (
         <AddFolderDialog
           sandboxFolders={sandboxFolders}
