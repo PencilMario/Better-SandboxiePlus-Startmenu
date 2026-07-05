@@ -26,6 +26,10 @@ export function GetFileIcon(arg1) {
   return window['go']['main']['App']['GetFileIcon'](arg1);
 }
 
+export function GetLaunchConstraint(arg1) {
+  return window['go']['main']['App']['GetLaunchConstraint'](arg1);
+}
+
 export function GoBack() {
   return window['go']['main']['App']['GoBack']();
 }

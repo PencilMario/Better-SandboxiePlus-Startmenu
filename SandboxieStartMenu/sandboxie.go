@@ -167,6 +167,54 @@ func expandSandboxPath(path string, sandbox string) string {
 	return expanded
 }
 
+func findOwningSandbox(filePath string, folders []SandboxFolder) (string, bool) {
+	cleanFilePath := filepath.Clean(filePath)
+	bestSandbox := ""
+	bestRootLength := -1
+
+	for _, folder := range folders {
+		cleanRootPath := filepath.Clean(folder.Path)
+		if !isSameOrDescendantPath(cleanFilePath, cleanRootPath) {
+			continue
+		}
+		if len(cleanRootPath) > bestRootLength {
+			bestSandbox = folder.Sandbox
+			bestRootLength = len(cleanRootPath)
+		}
+	}
+
+	if bestSandbox == "" {
+		return "", false
+	}
+	return bestSandbox, true
+}
+
+func isSameOrDescendantPath(path string, root string) bool {
+	if strings.EqualFold(path, root) {
+		return true
+	}
+
+	rootWithSeparator := root
+	if !strings.HasSuffix(rootWithSeparator, string(os.PathSeparator)) {
+		rootWithSeparator += string(os.PathSeparator)
+	}
+
+	return strings.HasPrefix(strings.ToLower(path), strings.ToLower(rootWithSeparator))
+}
+
+func validateLaunchSandbox(filePath string, selectedSandbox string, folders []SandboxFolder) error {
+	owningSandbox, ok := findOwningSandbox(filePath, folders)
+	if !ok {
+		return nil
+	}
+
+	if selectedSandbox != owningSandbox {
+		return fmt.Errorf("该程序位于沙箱 %q 内，只能使用该沙箱启动", owningSandbox)
+	}
+
+	return nil
+}
+
 // LaunchProgram launches a program in the specified sandbox
 func (sm *SandboxieManager) LaunchProgram(filePath string, sandbox string) (int, error) {
 	if !sm.IsAvailable() {

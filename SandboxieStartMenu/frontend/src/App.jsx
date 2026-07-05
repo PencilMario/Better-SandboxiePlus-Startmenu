@@ -16,7 +16,8 @@ import {
   GoBack,
   CanGoBack,
   OpenSandboxieManager,
-  GetAvailableSandboxFolders
+  GetAvailableSandboxFolders,
+  GetLaunchConstraint
 } from '../wailsjs/go/main/App'
 import Sidebar from './components/Sidebar'
 import MainContent from './components/MainContent'
@@ -269,6 +270,25 @@ function App() {
 
   const handleLaunchFile = useCallback(async (filePath) => {
     try {
+      const constraint = await GetLaunchConstraint(filePath)
+      const requiredSandbox = constraint?.requiredSandbox
+      const needsSandboxSwitch = constraint?.isRestricted && requiredSandbox && appState?.selectedSandbox !== requiredSandbox
+
+      if (needsSandboxSwitch) {
+        const confirmed = await requestConfirm({
+          title: '切换沙箱启动',
+          description: `该程序位于沙箱 "${requiredSandbox}" 内，只能使用该沙箱启动。是否切换到该沙箱并启动？`,
+          confirmLabel: '切换并启动',
+        })
+
+        if (!confirmed) {
+          return
+        }
+
+        const newState = await SetSelectedSandbox(requiredSandbox)
+        setAppState(newState)
+      }
+
       const response = await LaunchProgram(filePath)
       if (response.success) {
         showToast(`程序启动成功 (PID: ${response.pid})`, 'success')
@@ -279,7 +299,7 @@ function App() {
       console.error('Error launching file:', err)
       showToast(`启动程序失败: ${err.message || err}`, 'error')
     }
-  }, [])
+  }, [appState?.selectedSandbox, requestConfirm])
 
   const handleOpenConfigFile = useCallback(async () => {
     try {

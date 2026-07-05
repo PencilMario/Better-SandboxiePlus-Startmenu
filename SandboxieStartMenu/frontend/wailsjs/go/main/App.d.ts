@@ -14,6 +14,8 @@ export function GetAvailableSandboxes():Promise<Array<string>>;
 
 export function GetFileIcon(arg1:string):Promise<string>;
 
+export function GetLaunchConstraint(arg1:string):Promise<main.LaunchConstraint>;
+
 export function GoBack():Promise<main.AppState>;
 
 export function IsSandboxieAvailable():Promise<boolean>;

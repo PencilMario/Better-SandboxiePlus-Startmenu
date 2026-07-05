@@ -25,6 +25,12 @@ type SandboxFolder struct {
 	Path    string `json:"path"`
 }
 
+// LaunchConstraint describes whether a file must be launched by a specific sandbox.
+type LaunchConstraint struct {
+	IsRestricted    bool   `json:"isRestricted"`
+	RequiredSandbox string `json:"requiredSandbox"`
+}
+
 // LaunchRequest represents a request to launch a program
 type LaunchRequest struct {
 	FilePath string `json:"filePath"`

@@ -164,3 +164,55 @@ func TestFilterUnaddedSandboxFoldersHidesExistingFolders(t *testing.T) {
 		t.Fatalf("folders = %#v, want %#v", got, want)
 	}
 }
+
+func TestFindOwningSandboxMatchesDescendantPath(t *testing.T) {
+	folders := []SandboxFolder{
+		{Sandbox: "DefaultBox", Path: filepath.Clean(`C:\Sandbox\Alice\DefaultBox`)},
+		{Sandbox: "Ayase", Path: filepath.Clean(`K:\Sandboxes\Ayase`)},
+	}
+
+	sandbox, ok := findOwningSandbox(
+		filepath.Clean(`C:\Sandbox\Alice\DefaultBox\drive\C\Tools\app.exe`),
+		folders,
+	)
+
+	if !ok {
+		t.Fatal("findOwningSandbox() ok = false, want true")
+	}
+	if sandbox != "DefaultBox" {
+		t.Fatalf("findOwningSandbox() sandbox = %q, want DefaultBox", sandbox)
+	}
+}
+
+func TestFindOwningSandboxDoesNotMatchSiblingPrefix(t *testing.T) {
+	folders := []SandboxFolder{
+		{Sandbox: "DefaultBox", Path: filepath.Clean(`C:\Sandbox\Alice\DefaultBox`)},
+	}
+
+	_, ok := findOwningSandbox(
+		filepath.Clean(`C:\Sandbox\Alice\DefaultBox2\app.exe`),
+		folders,
+	)
+
+	if ok {
+		t.Fatal("findOwningSandbox() ok = true, want false")
+	}
+}
+
+func TestValidateLaunchSandboxRejectsDifferentSandboxAndAsk(t *testing.T) {
+	folders := []SandboxFolder{
+		{Sandbox: "DefaultBox", Path: filepath.Clean(`C:\Sandbox\Alice\DefaultBox`)},
+	}
+	filePath := filepath.Clean(`C:\Sandbox\Alice\DefaultBox\drive\C\Tools\app.exe`)
+
+	for _, selected := range []string{"OtherBox", "__ask__"} {
+		err := validateLaunchSandbox(filePath, selected, folders)
+		if err == nil {
+			t.Fatalf("validateLaunchSandbox(%q) error = nil, want error", selected)
+		}
+	}
+
+	if err := validateLaunchSandbox(filePath, "DefaultBox", folders); err != nil {
+		t.Fatalf("validateLaunchSandbox(DefaultBox) error = %v, want nil", err)
+	}
+}

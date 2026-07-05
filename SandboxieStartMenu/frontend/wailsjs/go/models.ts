@@ -61,6 +61,20 @@ export namespace main {
 		}
 	}
 	
+	export class LaunchConstraint {
+	    isRestricted: boolean;
+	    requiredSandbox: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new LaunchConstraint(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.isRestricted = source["isRestricted"];
+	        this.requiredSandbox = source["requiredSandbox"];
+	    }
+	}
 	export class LaunchResponse {
 	    success: boolean;
 	    message: string;

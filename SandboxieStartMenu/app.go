@@ -102,6 +102,16 @@ func (a *App) SetSelectedSandbox(sandbox string) (*AppState, error) {
 func (a *App) LaunchProgram(filePath string) (*LaunchResponse, error) {
 	config := a.configManager.GetConfig()
 
+	if folders, err := a.sandboxieManager.GetSandboxRootFolders(); err == nil {
+		if err := validateLaunchSandbox(filePath, config.SelectedSandbox, folders); err != nil {
+			return &LaunchResponse{
+				Success: false,
+				Message: err.Error(),
+				PID:     0,
+			}, nil
+		}
+	}
+
 	pid, err := a.sandboxieManager.LaunchProgram(filePath, config.SelectedSandbox)
 	if err != nil {
 		return &LaunchResponse{
@@ -116,6 +126,24 @@ func (a *App) LaunchProgram(filePath string) (*LaunchResponse, error) {
 		Message: fmt.Sprintf("Program launched with PID %d", pid),
 		PID:     pid,
 	}, nil
+}
+
+// GetLaunchConstraint returns the sandbox required to launch a file, if any.
+func (a *App) GetLaunchConstraint(filePath string) *LaunchConstraint {
+	folders, err := a.sandboxieManager.GetSandboxRootFolders()
+	if err != nil {
+		return &LaunchConstraint{}
+	}
+
+	sandbox, ok := findOwningSandbox(filePath, folders)
+	if !ok {
+		return &LaunchConstraint{}
+	}
+
+	return &LaunchConstraint{
+		IsRestricted:    true,
+		RequiredSandbox: sandbox,
+	}
 }
 
 // IsSandboxieAvailable checks if Sandboxie is installed
