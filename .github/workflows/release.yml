@@ -1,0 +1,130 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g. v1.0.1)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: SandboxieStartMenu
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+          cache-dependency-path: SandboxieStartMenu/go.sum
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: SandboxieStartMenu/frontend/package-lock.json
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.11.0
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: SandboxieStartMenu/frontend
+
+      - name: Build (wails build)
+        run: wails build -clean -skipbindings
+        env:
+          CGO_ENABLED: "1"
+
+      - name: Build NSIS installer
+        run: wails build -clean -skipbindings -nsis
+        env:
+          CGO_ENABLED: "1"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SandboxieStartMenu-windows
+          path: |
+            SandboxieStartMenu/build/bin/SandboxieStartMenu.exe
+            SandboxieStartMenu/build/bin/*.exe
+          if-no-files-found: error
+
+  release:
+    needs: build-windows
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: SandboxieStartMenu-*
+          merge-multiple: true
+
+      - name: Generate release notes
+        id: notes
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $version = $tag.TrimStart('v')
+          $notes = @"
+          ## Sandboxie Start Menu $version
+
+          **下载 / Download:**
+          - `SandboxieStartMenu.exe` — 便携版可执行文件
+          - `SandboxieStartMenu-installer.exe` — NSIS 安装包
+
+          ### 安装说明 / Installation
+          1. 确保已安装 [Sandboxie Plus](https://sandboxie-plus.com/)
+          2. 下载解压后运行 `SandboxieStartMenu.exe`
+          "@
+          $notes | Out-File -FilePath release-notes.md -Encoding utf8
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Sandboxie Start Menu ${{ github.ref_name }}
+          body_path: release-notes.md
+          files: |
+            SandboxieStartMenu.exe
+            SandboxieStartMenu-installer.exe
+          fail_on_unmatched_files: true
+
+  release-manual:
+    needs: build-windows
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: SandboxieStartMenu-*
+          merge-multiple: true
+
+      - name: Upload to workflow run
+        uses: actions/upload-artifact@v4
+        with:
+          name: SandboxieStartMenu-${{ github.event.inputs.version }}
+          path: |
+            SandboxieStartMenu.exe
+            SandboxieStartMenu-installer.exe
