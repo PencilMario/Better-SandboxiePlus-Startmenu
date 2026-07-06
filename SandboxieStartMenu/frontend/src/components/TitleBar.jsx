@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Maximize2, Minimize2, Minus, Shield, X } from 'lucide-react'
+ import { Maximize2, Minimize2, Minus, X } from 'lucide-react'
+ import appLogo from '../assets/images/app-logo.png'
 import {
   Quit,
   WindowIsMaximised,
@@ -60,8 +61,8 @@ function TitleBar({ appState }) {
         style={{ '--wails-draggable': 'drag' }}
         onDoubleClick={handleToggleMaximise}
       >
-        <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-[#24292f] text-white dark:bg-[#238636]">
-          <Shield size={14} />
+         <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center">
+           <img src={appLogo} alt="Sandboxie" className="h-full w-full object-contain" />
         </div>
         <div className="min-w-0 leading-none">
           <p className="truncate text-xs font-semibold text-zinc-950 dark:text-[#f0f6fc]">
