@@ -85,18 +85,18 @@ jobs:
         run: |
           $tag = "${{ github.ref_name }}"
           $version = $tag.TrimStart('v')
-          $notes = @"
-          ## Sandboxie Start Menu $version
-
-          **下载 / Download:**
-          - `SandboxieStartMenu.exe` — 便携版可执行文件
-          - `SandboxieStartMenu-installer.exe` — NSIS 安装包
-
-          ### 安装说明 / Installation
-          1. 确保已安装 [Sandboxie Plus](https://sandboxie-plus.com/)
-          2. 下载解压后运行 `SandboxieStartMenu.exe`
-          "@
-          $notes | Out-File -FilePath release-notes.md -Encoding utf8
+          $notes = @(
+            "## Sandboxie Start Menu $version"
+            ""
+            "**下载 / Download:**"
+            '- `SandboxieStartMenu.exe` — 便携版可执行文件'
+            '- `SandboxieStartMenu-installer.exe` — NSIS 安装包'
+            ""
+            "### 安装说明 / Installation"
+            "1. 确保已安装 [Sandboxie Plus](https://sandboxie-plus.com/)"
+            '2. 下载解压后运行 `SandboxieStartMenu.exe`'
+          )
+          $notes | Set-Content -Path release-notes.md -Encoding utf8
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
